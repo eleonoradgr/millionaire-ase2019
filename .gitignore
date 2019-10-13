@@ -11,3 +11,4 @@ lib
 include
 .cache
 venv
+.vscode

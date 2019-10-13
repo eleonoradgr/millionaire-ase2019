@@ -6,76 +6,89 @@ quizzes = JsonBlueprint('quizzes', __name__)
 
 _LOADED_QUIZZES = {}  # list of available quizzes
 _QUIZNUMBER = 0  # index of the last created quizzes
+_QUIZTOT = 0  # total number of quizzes
 
 
 # TODO: complete the decoration
-@quizzes.route("/quizzes")
+@quizzes.route("/quizzes", methods=['GET', 'POST'])
 def all_quizzes():
     if 'POST' == request.method:
-        # TODO: Create new quiz 
+        # TODO: check if the request structure is correct
+        result = create_quiz(request)
+        global _QUIZTOT
+        _QUIZTOT += 1
     elif 'GET' == request.method:
-        # TODO: Retrieve all loaded quizzes
-
+        result = get_all_quizzes(request)
     return result
 
 # TODO: complete the decoration
 @quizzes.route("/quizzes/loaded", methods=['GET'])
 def loaded_quizzes():  # returns the number of quizzes currently loaded in the system
-    return # TODO: Return the correct number
+    return jsonify(_QUIZTOT)
 
 
 # TODO: complete the decoration
-@quizzes.route("/quiz/<id>")
-def single_quiz(id):
-    global _LOADED_QUIZZES
-    result = ""
+# @quizzes.route("/quiz/<id>")
+# def single_quiz(id):
+#    global _LOADED_QUIZZES
+#    result = ""
 
     # TODO: check if the quiz is an existing one
 
-    if 'GET' == request.method:  
-        # TODO: retrieve a quiz <id>
-       
+#    if 'GET' == request.method:
+    # TODO: retrieve a quiz <id>
 
-    elif 'DELETE' == request.method:
-        # TODO: delete a quiz and get back number of answered questions
-        # and total number of questions
+#    elif 'DELETE' == request.method:
+    # TODO: delete a quiz and get back number of answered questions
+    # and total number of questions
 
-    return result
+#    return result
 
 
 # TODO: complete the decoration
-@quizzes.route("/quiz/<id>/question", methods=['GET'])
-def play_quiz(id):
-    global _LOADED_QUIZZES
-    result = ""
+# @quizzes.route("/quiz/<id>/question", methods=['GET'])
+# def play_quiz(id):
+#    global _LOADED_QUIZZES
+#    result = ""
 
     # TODO: check if the quiz is an existing one
 
-    if 'GET' == request.method:  
-        # TODO: retrieve next question in a quiz, handle exceptions
+#    if 'GET' == request.method:
+    # TODO: retrieve next question in a quiz, handle exceptions
 
-    return result
+#    return result
 
 
 # TODO: complete the decoration
-@quizzes.route("/quiz/<id>/question/<answer>", methods=['PUT'])
-def answer_question(id, answer):
-    global _LOADED_QUIZZES
-    result = ""
+# @quizzes.route("/quiz/<id>/question/<answer>", methods=['PUT'])
+# def answer_question(id, answer):
+#    global _LOADED_QUIZZES
+#    result = ""
     # TODO: check if the quiz is an existing one
-    quiz = _LOADED_QUIZZES[id]
-    
+#    quiz = _LOADED_QUIZZES[id]
+
     # TODO: check if quiz is lost or completed and act consequently
 
-    if 'PUT' == request.method:  
+#    if 'PUT' == request.method:
 
-        # TODO: Check answers and handle exceptions 
+    # TODO: Check answers and handle exceptions
 
-        return jsonify({'msg': result})
+#        return jsonify({'msg': result})
+
+############################################
+# NEW FUNCTIONS BELOW
+############################################
+
+
+def check_quiz_post(request):
+    # if key doesn't exist, returns a 400, bad request error
+    qs = request.args['questions']
+
 
 ############################################
 # USEFUL FUNCTIONS BELOW (use them, don't change them)
 ############################################
+
 
 def create_quiz(request):
     global _LOADED_QUIZZES, _QUIZNUMBER
