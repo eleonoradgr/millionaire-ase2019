@@ -28,21 +28,25 @@ def loaded_quizzes():  # returns the number of quizzes currently loaded in the s
 
 
 # TODO: complete the decoration
-# @quizzes.route("/quiz/<id>")
-# def single_quiz(id):
-#    global _LOADED_QUIZZES
-#    result = ""
+@quizzes.route("/quiz/<id>", methods=['GET'])
+def single_quiz(id):
+    global _LOADED_QUIZZES
+    result = ""
+    check_id_type(id)
+    exists_quiz(id)
 
-    # TODO: check if the quiz is an existing one
-
-#    if 'GET' == request.method:
-    # TODO: retrieve a quiz <id>
-
-#    elif 'DELETE' == request.method:
+    if 'GET' == request.method:
+        # TODO: retrieve a quiz <id>
+        result = _LOADED_QUIZZES[id].serialize()
+    elif 'DELETE' == request.method:
     # TODO: delete a quiz and get back number of answered questions
     # and total number of questions
+        result ={
+            "answered_questions": _LOADED_QUIZZES[id].currentQuestion , #controlla se -1
+            "total_questions": _LOADED_QUIZZES[id].questions.len()
+            }
 
-#    return result
+    return result
 
 
 # TODO: complete the decoration
@@ -83,6 +87,13 @@ def loaded_quizzes():  # returns the number of quizzes currently loaded in the s
 def check_quiz_post(request):
     # if key doesn't exist, returns a 400, bad request error
     qs = request.args['questions']
+
+
+def check_id_type(id):
+    try:
+        int(id)
+    except ValueError:
+       abort(400, "Id parameter must be an integer")
 
 
 ############################################
