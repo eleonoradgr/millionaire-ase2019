@@ -24,76 +24,98 @@ def all_quizzes():
 # TODO: complete the decoration
 @quizzes.route("/quizzes/loaded", methods=['GET'])
 def loaded_quizzes():  # returns the number of quizzes currently loaded in the system
-    return jsonify(_QUIZTOT)
+    return {"loaded_quizzes":_QUIZTOT}
 
 
 # TODO: complete the decoration
-@quizzes.route("/quiz/<id>", methods=['GET'])
+@quizzes.route("/quiz/<id>", methods=['GET', 'DELETE'])
 def single_quiz(id):
     global _LOADED_QUIZZES
+    global _QUIZTOT
     result = ""
     check_id_type(id)
     exists_quiz(id)
 
     if 'GET' == request.method:
-        # TODO: retrieve a quiz <id>
         result = _LOADED_QUIZZES[id].serialize()
     elif 'DELETE' == request.method:
-    # TODO: delete a quiz and get back number of answered questions
-    # and total number of questions
-        result ={
-            "answered_questions": _LOADED_QUIZZES[id].currentQuestion , #controlla se -1
-            "total_questions": _LOADED_QUIZZES[id].questions.len()
-            }
+        # TODO: delete a quiz and get back number of answered questions
+        # and total number of questions
+        result = {
+            # controlla se -1
+            "answered_questions": _LOADED_QUIZZES[id].currentQuestion,
+            "total_questions": len(_LOADED_QUIZZES[id].questions)
+        }
+        _LOADED_QUIZZES.pop(id)
+        _QUIZTOT -= 1
 
     return result
 
 
 # TODO: complete the decoration
-# @quizzes.route("/quiz/<id>/question", methods=['GET'])
-# def play_quiz(id):
-#    global _LOADED_QUIZZES
-#    result = ""
+@quizzes.route("/quiz/<id>/question", methods=['GET'])
+def play_quiz(id):
+    global _LOADED_QUIZZES
+    result = ""
 
-    # TODO: check if the quiz is an existing one
+    check_id_type(id)
+    exists_quiz(id)
 
-#    if 'GET' == request.method:
-    # TODO: retrieve next question in a quiz, handle exceptions
+    if 'GET' == request.method:
+        # TODO: retrieve next question in a quiz, handle exceptions
+        try:
+            result = _LOADED_QUIZZES[id].getQuestion()
+        except CompletedQuizError :
+            result = jsonify({'msg': "completed quiz"}) 
+        except LostQuizError :
+            result = jsonify({'msg': "you lost!"})
 
-#    return result
+    return result
 
 
 # TODO: complete the decoration
-# @quizzes.route("/quiz/<id>/question/<answer>", methods=['PUT'])
-# def answer_question(id, answer):
-#    global _LOADED_QUIZZES
-#    result = ""
-    # TODO: check if the quiz is an existing one
-#    quiz = _LOADED_QUIZZES[id]
+@quizzes.route("/quiz/<id>/question/<answer>", methods=['PUT'])
+def answer_question(id, answer):
+    global _LOADED_QUIZZES
+    result = ""
+    check_id_type(id)
+    exists_quiz(id)
+    quiz = _LOADED_QUIZZES[id]
 
     # TODO: check if quiz is lost or completed and act consequently
-
-#    if 'PUT' == request.method:
+    if(quiz.isCompleted()):
+        result = 'completed quiz'
+    elif(quiz.isLost()):
+        result = 'you lost!'
+    elif 'PUT' == request.method:
+        try:
+            result = quiz.checkAnswer(answer)
+        except CompletedQuizError :
+            result = "you won 1 million clams!"
+        except LostQuizError:
+            result = "you lost!"
+        except NonExistingAnswerError:
+            result = "non-existing answer!"
 
     # TODO: Check answers and handle exceptions
 
-#        return jsonify({'msg': result})
+    return jsonify({'msg': result})
 
 ############################################
 # NEW FUNCTIONS BELOW
 ############################################
 
 
-def check_quiz_post(request):
+# def check_quiz_post(request):
     # if key doesn't exist, returns a 400, bad request error
-    qs = request.args['questions']
+#    qs = request.args['questions']
 
 
 def check_id_type(id):
     try:
         int(id)
     except ValueError:
-       abort(400, "Id parameter must be an integer")
+        abort(400, "Id parameter must be an integer")
 
 
 ############################################
